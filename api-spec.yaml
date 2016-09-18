@@ -50,9 +50,7 @@ paths:
         '200':
           description: Collection of Orders
           schema:
-            type: array
-            items:
-              $ref: '#/definitions/order'
+            $ref: '#/definitions/order_collection'
   /donuts/{order_id}:
     parameters:
       - $ref: "#/parameters/order_id"
@@ -141,72 +139,94 @@ paths:
             $ref: '#/definitions/order_cancel'
         '404':
           description: Not Found
+
 definitions:
   # Full Objects
   order:
-    type: object
-    required:
-      - amount
-      - message
-      - to
-      - from
-    properties:
-      amount:
-        $ref: '#/definitions/amount'
-      message:
-        $ref: '#/definitions/message'
-      to:
-        $ref: '#/definitions/person'
-      from:
-        $ref: '#/definitions/person'
-      address:
-        $ref: '#/definitions/address'
-      webhook:
-        $ref: '#/definitions/webhook'
-      order_id:
-        readOnly: true
-        type: string
-        format: uuid
-      cost:
-        readOnly: true
-        type: integer
-        description: Cost in cents.
-      status:
-        readOnly: true
-        type: string
-        enum:
-          - pending
-          - canceled
-          - delivering
-          - completed
-      created:
-        $ref: '#/definitions/created'
+    allOf:
+      - $ref: '#/definitions/hal_self'
+      - type: object
+        required:
+          - amount
+          - message
+          - to
+          - from
+          - address
+        properties:
+          amount:
+            $ref: '#/definitions/amount'
+          message:
+            $ref: '#/definitions/message'
+          to:
+            $ref: '#/definitions/person'
+          from:
+            $ref: '#/definitions/person'
+          address:
+            $ref: '#/definitions/address'
+          webhook:
+            $ref: '#/definitions/webhook'
+          order_id:
+            readOnly: true
+            type: string
+            format: uuid
+          cost:
+            readOnly: true
+            type: integer
+            description: Cost in cents.
+          status:
+            readOnly: true
+            type: string
+            enum:
+              - pending
+              - canceled
+              - delivering
+              - completed
+          created:
+            $ref: '#/definitions/created'
+  order_collection:
+    allOf:
+      - $ref: '#/definitions/hal_paging'
+      - type: object
+        properties:
+          _embedded:
+            type: object
+            properties:
+              orders:
+                type: array
+                items:
+                  $ref: '#/definitions/order'
   order_update:
-    properties:
-      amount:
-        $ref: '#/definitions/amount'
-      address:
-        $ref: '#/definitions/address'
-      message:
-        $ref: '#/definitions/address'
-      created:
-        $ref: '#/definitions/created'
+    allOf:
+      - $ref: '#/definitions/hal_self'
+      - type: object
+        properties:
+          amount:
+            $ref: '#/definitions/amount'
+          address:
+            $ref: '#/definitions/address'
+          message:
+            $ref: '#/definitions/address'
+          created:
+            $ref: '#/definitions/created'
   order_cancel:
-    properties:
-      reason:
-        type: string
-        maxLength: 600
-      webhook:
-        $ref: '#/definitions/webhook'
-      created:
-        $ref: '#/definitions/created'
-      status:
-        readOnly: true
-        type: string
-        enum:
-          - pending
-          - completed
-          - failed
+    allOf:
+      - $ref: '#/definitions/hal_self'
+      - type: object
+        properties:
+          reason:
+            type: string
+            maxLength: 600
+          webhook:
+            $ref: '#/definitions/webhook'
+          created:
+            $ref: '#/definitions/created'
+          status:
+            readOnly: true
+            type: string
+            enum:
+              - pending
+              - completed
+              - failed
 
   # Object Properties
   person:
@@ -237,6 +257,37 @@ definitions:
         type: string
       country:
         type: string
+
+  #HAL
+  hal_link:
+    type: object
+    readOnly: true
+    properties:
+      href:
+        type: string
+        format: url
+  hal_self:
+    type: object
+    properties:
+      self:
+        $ref: '#/definitions/hal_link'
+  hal_paging:
+    type: object
+    required:
+      - self
+      - first
+      - last
+    properties:
+      self:
+        $ref: '#/definitions/hal_link'
+      next:
+        $ref: '#/definitions/hal_link'
+      prev:
+        $ref: '#/definitions/hal_link'
+      first:
+        $ref: '#/definitions/hal_link'
+      last:
+        $ref: '#/definitions/hal_link'
 
   # Simple Properties
   amount:
@@ -283,4 +334,3 @@ parameters:
     in: query
     type: string
     format: date-time
-
