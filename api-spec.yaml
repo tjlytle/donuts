@@ -29,7 +29,7 @@ paths:
             $ref: '#/definitions/order'
       responses:
         '201':
-          description: Order Created
+          description: Order Object
           headers:
             Location:
               type: string
@@ -48,7 +48,7 @@ paths:
         - $ref: "#/parameters/end_date"
       responses:
         '200':
-          description: Collection of Orders
+          description: Order Object Collection
           schema:
             $ref: '#/definitions/order_collection'
   /donuts/{order_id}:
@@ -60,7 +60,7 @@ paths:
         Get a single order by ID.
       responses:
         '200':
-          description: A Single Order
+          description: Order Object
           schema:
             $ref: '#/definitions/order'
         '404':
@@ -83,7 +83,7 @@ paths:
             $ref: '#/definitions/order_update'
       responses:
         '201':
-          description: Order Updated
+          description: Order Object
           schema:
             $ref: '#/definitions/order'
         '403':
@@ -98,7 +98,7 @@ paths:
         - $ref: "#/parameters/end_date"
       responses:
         '200':
-          description: Collection of Updates
+          description: Update Object Collection
           schema:
             type: array
             items:
@@ -118,13 +118,13 @@ paths:
       parameters:
         - name: body
           in: body
-          description: Update Object
+          description: Cancel Object
           required: true
           schema:
             $ref: '#/definitions/order_cancel'
       responses:
         '201':
-          description: Cancelation Request
+          description: Cancel Object
           schema:
             $ref: '#/definitions/order_cancel'
     get:
@@ -134,7 +134,7 @@ paths:
         a `404` status will be returned.
       responses:
         '200':
-          description: Cancelation Request
+          description: Cancel Object
           schema:
             $ref: '#/definitions/order_cancel'
         '404':
