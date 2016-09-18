@@ -15,7 +15,11 @@ produces:
 paths:
   /donuts:
     post:
-      description: Send a donut to anyone, anywhere.
+      summary: Send a donut to anyone, anywhere.
+      description: >
+        Create a donut order by sending a the JSON body of an order request, the
+        response will include both a `Location` header with the URI of the
+        created order and the Order itself.
       parameters:
         - name: body
           in: body
@@ -33,11 +37,15 @@ paths:
           schema:
             $ref: '#/definitions/order'
     get:
-      description: List and Filter Orders
+      summary: List and Filter Orders
+      description: >
+        List past and in progress orders. Can be filtered by the order status,
+        or a range of dates. The returned collection provides count and paging
+        information
       parameters:
-        - $ref: "#/parameters/status" 
-        - $ref: "#/parameters/start_date" 
-        - $ref: "#/parameters/end_date" 
+        - $ref: "#/parameters/status"
+        - $ref: "#/parameters/start_date"
+        - $ref: "#/parameters/end_date"
       responses:
         '200':
           description: Collection of Orders
@@ -47,9 +55,11 @@ paths:
               $ref: '#/definitions/order'
   /donuts/{order_id}:
     parameters:
-      - $ref: "#/parameters/order_id"    
+      - $ref: "#/parameters/order_id"
     get:
-      description: Fetch an Order
+      summary: Fetch an Order
+      description: >
+        Get a single order by ID.
       responses:
         '200':
           description: A Single Order
@@ -59,9 +69,13 @@ paths:
           description: Not Found
   /donuts/{order_id}/updates:
     parameters:
-      - $ref: "#/parameters/order_id" 
+      - $ref: "#/parameters/order_id"
     post:
-      description: Update an Order
+      summary: Update an Order
+      description: >
+        Update an order modifying the amount, the address, or the message. The
+        update may include one or more of those properties. A `403` status will
+        be returned if the order can not be updated.
       parameters:
         - name: body
           in: body
@@ -77,12 +91,15 @@ paths:
         '403':
           description: Update Not Allowed
     get:
-      description: List Order Updates
+      summary: List Order Updates
+      description: >
+        A collection of updates made to the order. This shows the changes made to
+        an order over time.
       parameters:
-        - $ref: "#/parameters/start_date" 
-        - $ref: "#/parameters/end_date" 
+        - $ref: "#/parameters/start_date"
+        - $ref: "#/parameters/end_date"
       responses:
-        '200': 
+        '200':
           description: Collection of Updates
           schema:
             type: array
@@ -90,9 +107,16 @@ paths:
               $ref: '#/definitions/order_update'
   /donuts/{order_id}/cancel:
     parameters:
-      - $ref: "#/parameters/order_id" 
+      - $ref: "#/parameters/order_id"
     put:
-      description: Cancel an Order
+      summary: Cancel an Order
+      description: >
+        Request that an order be canceled. This process may fail, successfully
+        making the request does not guarantee the order is canceled. If a
+        `webhook` is provided it will be notified of any changes. The payload
+        will be the same as the cancellation request.
+
+        This can only be done once.
       parameters:
         - name: body
           in: body
@@ -106,7 +130,10 @@ paths:
           schema:
             $ref: '#/definitions/order_cancel'
     get:
-      description: Get Cancel Status
+      summary: Get Cancel Status
+      description: >
+        Check the status of a cancellation request. If no request has been made
+        a `404` status will be returned.
       responses:
         '200':
           description: Cancelation Request
@@ -150,7 +177,7 @@ definitions:
         enum:
           - pending
           - canceled
-          - delivering 
+          - delivering
           - completed
       created:
         $ref: '#/definitions/created'
@@ -244,7 +271,7 @@ parameters:
     enum:
       - pending
       - canceled
-      - delivering 
+      - delivering
       - completed
   start_date:
     name: start_date
@@ -256,5 +283,4 @@ parameters:
     in: query
     type: string
     format: date-time
-    
 
